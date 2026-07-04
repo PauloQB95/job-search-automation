@@ -1,104 +1,88 @@
 import math
 import requests
-import pandas as pd
 
 # ============================================================
 # CONFIGURACIÓN
 # ============================================================
 
-URL = "https://jobs.iadb.org/services/recruiting/v1/jobs"
+def buscar_trabajos_bid():
+    
+    URL = "https://jobs.iadb.org/services/recruiting/v1/jobs"
 
-TRABAJOS_POR_PAGINA = 10
+    TRABAJOS_POR_PAGINA = 10
 
-payload = {
-    "locale": "en_US",
-    "pageNumber": 0,
-    "sortBy": "",
-    "keywords": "",
-    "location": "",
-    "facetFilters": {},
-    "brand": "",
-    "categoryId": 0,
-    "alertId": "",
-    "rcmCandidateId": "",
-    "skills": []
-}
+    payload = {
+        "locale": "en_US",
+        "pageNumber": 0,
+        "sortBy": "",
+         "keywords": "",
+        "location": "",
+        "facetFilters": {},
+        "brand": "",
+        "categoryId": 0,
+        "alertId": "",
+        "rcmCandidateId": "",
+        "skills": []
+    }
 
-# Lista donde guardaremos todos los trabajos
-lista_trabajos = []
+    lista_trabajos = []
 
+    # ============================================================
+    # FUNCIÓN PARA PROCESAR UNA PÁGINA
+    # ============================================================
 
-# ============================================================
-# FUNCIÓN PARA PROCESAR UNA PÁGINA
-# ============================================================
+    def agregar_trabajos(datos_pagina):
 
-def agregar_trabajos(datos_pagina):
+        trabajos = datos_pagina["jobSearchResult"]
 
-    trabajos = datos_pagina["jobSearchResult"]
+        for trabajo in trabajos:
 
-    for trabajo in trabajos:
+            detalle = trabajo["response"]
 
-        detalle = trabajo["response"]
+            nuevo_trabajo = {
+                "titulo": detalle["unifiedStandardTitle"],
+                "ubicacion": detalle["jobLocationShort"][0],
+                "id": detalle["id"],
+                "fecha_limite": detalle["unifiedStandardEnd"]
+            }
 
-        nuevo_trabajo = {
-            "titulo": detalle["unifiedStandardTitle"],
-            "ubicacion": detalle["jobLocationShort"][0],
-            "id": detalle["id"],
-            "fecha_limite": detalle["unifiedStandardEnd"]
-        }
-
-        lista_trabajos.append(nuevo_trabajo)
-
-
-# ============================================================
-# DESCARGAR LA PRIMERA PÁGINA
-# ============================================================
-
-respuesta = requests.post(URL, json=payload)
-
-datos = respuesta.json()
-
-total_trabajos = datos["totalJobs"]
-
-total_paginas = math.ceil(total_trabajos / TRABAJOS_POR_PAGINA)
-
-print(f"Se encontraron {total_trabajos} trabajos.")
-print(f"Se descargarán {total_paginas} páginas.\n")
-
-# Procesamos inmediatamente la primera página
-agregar_trabajos(datos)
+            lista_trabajos.append(nuevo_trabajo)
 
 
-# ============================================================
-# DESCARGAR EL RESTO DE LAS PÁGINAS
-# ============================================================
-
-for pagina in range(1, total_paginas):
-
-    payload["pageNumber"] = pagina
+    # ============================================================
+    # DESCARGAR LA PRIMERA PÁGINA
+    # ============================================================
 
     respuesta = requests.post(URL, json=payload)
 
     datos = respuesta.json()
 
-    print(f"Descargando página {pagina + 1}...")
+    total_trabajos = datos["totalJobs"]
 
+    total_paginas = math.ceil(total_trabajos / TRABAJOS_POR_PAGINA)
+
+    print(f"Se encontraron {total_trabajos} trabajos.")
+    print(f"Se descargarán {total_paginas} páginas.\n")
+
+    # Procesamos inmediatamente la primera página
     agregar_trabajos(datos)
 
+    # ============================================================
+    # DESCARGAR EL RESTO DE LAS PÁGINAS
+    # ============================================================
 
-# ============================================================
-# CREAR EL DATAFRAME
-# ============================================================
+    for pagina in range(1, total_paginas):
 
-df = pd.DataFrame(lista_trabajos)
+        payload["pageNumber"] = pagina
 
-print(f"\nTotal de trabajos descargados: {len(df)}")
+        respuesta = requests.post(URL, json=payload)
 
+        datos = respuesta.json()
 
-# ============================================================
-# EXPORTAR A EXCEL
-# ============================================================
+        print(f"Descargando página {pagina + 1}...")
 
-df.to_excel("trabajos_bid.xlsx", index=False)
+        agregar_trabajos(datos)
 
-print("Archivo trabajos_bid.xlsx creado correctamente.")
+    # Devolvemos la lista completa de trabajos al programa principal
+    return lista_trabajos
+
