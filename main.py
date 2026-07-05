@@ -2,7 +2,7 @@ from buscar_bid import buscar_trabajos_bid
 
 import pandas as pd
 
-trabajos = buscar_trabajos()
+trabajos = buscar_trabajos_bid()
 
 df = pd.DataFrame(trabajos)
 
