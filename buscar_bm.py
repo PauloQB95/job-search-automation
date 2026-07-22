@@ -1,8 +1,7 @@
 import math
-from httpcore import URL
 import requests
-import os
-from dotenv import load_dotenv
+
+from autenticacion_bm import obtener_token_bm
 
 # ============================================================
 # CONFIGURACIÓN
@@ -79,9 +78,14 @@ def buscar_trabajos_bm():
     # DESCARGAR LA PRIMERA PÁGINA
     # ============================================================
 
-    load_dotenv()
+    # Obtener automáticamente el token utilizado por
+    # el portal de empleos del Banco Mundial.
+    try:
+        world_bank_token = obtener_token_bm()
 
-    world_bank_token = os.getenv("WORLD_BANK_TOKEN")
+    except RuntimeError as error:
+        print(error)
+        return []
 
     headers = {
         "Authorization": world_bank_token,
@@ -89,13 +93,6 @@ def buscar_trabajos_bm():
     }
       
     respuesta = requests.post(URL, json=payload, headers=headers)
-
-    print("Status code:", respuesta.status_code)
-    print("Respuesta:", respuesta.text[:300])
-
-    if respuesta.status_code != 200:
-        print("La API no respondió correctamente. Revisa el Authorization header.")
-        return []
 
     datos = respuesta.json()
 
@@ -121,13 +118,6 @@ def buscar_trabajos_bm():
             json=payload,
             headers=headers
         )
-
-        print("Status code:", respuesta.status_code)
-        print("Respuesta:", respuesta.text[:300])
-
-        if respuesta.status_code != 200:
-            print(f"No se pudo descargar la página {pagina}.")
-            continue
 
         datos = respuesta.json()
 

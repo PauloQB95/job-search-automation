@@ -42,15 +42,18 @@ def buscar_trabajos_bid():
             nuevo_trabajo = {
                 "organizacion": "IDB",
                 "titulo": detalle["unifiedStandardTitle"],
-                "ubicacion": detalle["jobLocationShort"][0],
+                "ubicacion": "; ".join(
+                    ubicacion.strip()
+                    for ubicacion in detalle["jobLocationShort"]
+                ),
                 "fecha_limite": detalle["unifiedStandardEnd"],
                 "url": f"https://jobs.iadb.org/job/{detalle['unifiedUrlTitle']}/{detalle['id']}-en_US",
             "fuente": "API"
             }
 
             lista_trabajos.append(nuevo_trabajo)
-
-
+    
+           
     # ============================================================
     # DESCARGAR LA PRIMERA PÁGINA
     # ============================================================
