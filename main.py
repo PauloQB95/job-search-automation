@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 import pandas as pd
 
@@ -7,26 +8,37 @@ from buscar_bm import buscar_trabajos_bm
 
 
 # ============================================================
+# CONFIGURACIÓN
+# ============================================================
+
+CARPETA_RESULTADOS = Path("resultados")
+RUTA_EXCEL = CARPETA_RESULTADOS / "trabajos_consolidados.xlsx"
+
+
+# ============================================================
 # EJECUTAR UN SCRAPER DE FORMA SEGURA
 # ============================================================
 
 def ejecutar_scraper(nombre, funcion_scraper):
     """
-    Ejecuta un scraper y evita que un error detenga
-    el resto del programa.
+    Ejecuta un scraper sin permitir que un error detenga
+    inmediatamente todo el programa.
 
-    Parámetros:
-        nombre:
-            Nombre de la fuente. Se utiliza en los mensajes.
+    Parámetros
+    ----------
+    nombre : str
+        Nombre de la organización.
 
-        funcion_scraper:
-            Función que descarga y devuelve una lista de trabajos.
+    funcion_scraper : function
+        Función que ejecuta el scraper.
 
-    Devuelve:
-        La lista obtenida por el scraper.
+    Retorna
+    -------
+    list
+        Lista de trabajos encontrados.
 
-        Si ocurre un error, devuelve una lista vacía para que
-        el programa pueda continuar con las demás fuentes.
+        Si el scraper falla o devuelve un valor inválido,
+        retorna una lista vacía.
     """
 
     print("\n" + "=" * 60)
@@ -36,23 +48,21 @@ def ejecutar_scraper(nombre, funcion_scraper):
     try:
         trabajos = funcion_scraper()
 
-        # Comprobamos que el scraper haya devuelto una lista.
         if not isinstance(trabajos, list):
             print(
-                f"Advertencia: el scraper de {nombre} no devolvió "
-                "una lista. Se utilizará una lista vacía."
+                f"Advertencia: {nombre} no devolvió una lista válida."
             )
             return []
 
         print(
-            f"Scraper de {nombre} completado correctamente: "
+            f"{nombre}: se encontraron "
             f"{len(trabajos)} trabajos."
         )
 
         return trabajos
 
     except Exception as error:
-        print(f"El scraper de {nombre} encontró un error.")
+        print(f"El scraper de {nombre} falló.")
         print(f"Tipo de error: {type(error).__name__}")
         print(f"Detalle: {error}")
         print("El programa continuará con las demás fuentes.")
@@ -61,65 +71,99 @@ def ejecutar_scraper(nombre, funcion_scraper):
 
 
 # ============================================================
-# DESCARGAR TRABAJOS DE CADA FUENTE
+# FUNCIÓN PRINCIPAL
 # ============================================================
 
-trabajos_bid = ejecutar_scraper(
-    nombre="BID",
-    funcion_scraper=buscar_trabajos_bid
-)
+def main():
+    """
+    Ejecuta todos los scrapers, combina los resultados
+    y crea el archivo Excel consolidado.
 
-trabajos_bm = ejecutar_scraper(
-    nombre="Banco Mundial",
-    funcion_scraper=buscar_trabajos_bm
-)
+    Retorna
+    -------
+    int
+        0 si se creó correctamente el Excel.
+        1 si no se obtuvo ningún trabajo.
+    """
 
+    # Ejecutar los scrapers independientemente.
+    trabajos_bid = ejecutar_scraper(
+        nombre="BID",
+        funcion_scraper=buscar_trabajos_bid
+    )
 
-# ============================================================
-# COMBINAR LOS RESULTADOS
-# ============================================================
+    trabajos_bm = ejecutar_scraper(
+        nombre="Banco Mundial",
+        funcion_scraper=buscar_trabajos_bm
+    )
 
-trabajos = []
+    # Combinar resultados.
+    trabajos = []
 
-trabajos.extend(trabajos_bid)
-trabajos.extend(trabajos_bm)
+    trabajos.extend(trabajos_bid)
+    trabajos.extend(trabajos_bm)
 
+    # --------------------------------------------------------
+    # Si ambos scrapers fallan o no producen resultados
+    # --------------------------------------------------------
 
-# ============================================================
-# CREAR LA CARPETA DE RESULTADOS
-# ============================================================
+    if not trabajos:
+        print("\n" + "=" * 60)
+        print("NO SE GENERÓ UN NUEVO ARCHIVO")
+        print("=" * 60)
 
-carpeta_resultados = Path("resultados")
+        print("Ningún scraper produjo resultados.")
+        print(
+            "El Excel anterior, si existe, se conservará "
+            "sin modificaciones."
+        )
 
-# Si la carpeta no existe, Python la crea.
-# Si ya existe, no ocurre ningún error.
-carpeta_resultados.mkdir(exist_ok=True)
+        # Código 1: GitHub Actions debe considerar
+        # esta ejecución como fallida.
+        return 1
 
+    # --------------------------------------------------------
+    # Crear el nuevo Excel
+    # --------------------------------------------------------
 
-# ============================================================
-# EXPORTAR EL ARCHIVO CONSOLIDADO
-# ============================================================
-
-if trabajos:
+    CARPETA_RESULTADOS.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
     df = pd.DataFrame(trabajos)
 
-    ruta_salida = carpeta_resultados / "trabajos_consolidados.xlsx"
+    # Primero creamos un archivo temporal.
+    ruta_temporal = (
+        CARPETA_RESULTADOS /
+        "trabajos_consolidados_temporal.xlsx"
+    )
 
     df.to_excel(
-        ruta_salida,
+        ruta_temporal,
         index=False
     )
+
+    # Solamente después de crear correctamente el archivo
+    # temporal reemplazamos el Excel anterior.
+    ruta_temporal.replace(RUTA_EXCEL)
 
     print("\n" + "=" * 60)
     print("DESCARGA TERMINADA")
     print("=" * 60)
 
-    print(f"Se descargaron {len(df)} trabajos en total.")
+    print(f"Total: {len(df)} trabajos.")
     print(f"BID: {len(trabajos_bid)} trabajos.")
     print(f"Banco Mundial: {len(trabajos_bm)} trabajos.")
-    print(f"Archivo creado en: {ruta_salida}")
+    print(f"Archivo creado en: {RUTA_EXCEL}")
 
-else:
-    print("\nNo se descargaron trabajos de ninguna fuente.")
-    print("No se creó un archivo Excel vacío.")
+    return 0
+
+
+# ============================================================
+# PUNTO DE ENTRADA
+# ============================================================
+
+if __name__ == "__main__":
+    codigo_salida = main()
+    sys.exit(codigo_salida)

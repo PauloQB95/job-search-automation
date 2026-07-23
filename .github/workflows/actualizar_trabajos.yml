@@ -1,0 +1,96 @@
+name: Actualizar vacantes
+
+on:
+  # Ejecución automática diaria.
+  schedule:
+    # 13:17 UTC equivale aproximadamente a 8:17 a. m. en Perú.
+    - cron: "17 13 * * *"
+
+  # Permite ejecutar el workflow manualmente desde GitHub.
+  workflow_dispatch:
+
+# Evita que dos actualizaciones se ejecuten simultáneamente.
+concurrency:
+  group: actualizacion-vacantes
+  cancel-in-progress: true
+
+# Permite que el workflow cree una GitHub Release.
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ------------------------------------------------------
+      # 1. Descargar el código del repositorio
+      # ------------------------------------------------------
+
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------
+      # 2. Instalar Python
+      # ------------------------------------------------------
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      # ------------------------------------------------------
+      # 3. Instalar dependencias
+      # ------------------------------------------------------
+
+      - name: Instalar dependencias de Python
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      # ------------------------------------------------------
+      # 4. Instalar Chromium y dependencias del sistema
+      # ------------------------------------------------------
+
+      - name: Instalar Chromium para Playwright
+        run: |
+          python -m playwright install --with-deps chromium
+
+      # ------------------------------------------------------
+      # 5. Ejecutar los scrapers
+      #
+      # Si main.py retorna código 1, el workflow se detiene aquí.
+      # No se crea una Release y se conserva la anterior.
+      # ------------------------------------------------------
+
+      - name: Ejecutar scrapers
+        run: |
+          python main.py
+
+      # ------------------------------------------------------
+      # 6. Verificar que el archivo realmente existe
+      # ------------------------------------------------------
+
+      - name: Verificar archivo Excel
+        run: |
+          test -f resultados/trabajos_consolidados.xlsx
+
+      # ------------------------------------------------------
+      # 7. Crear una nueva Release
+      #
+      # Cada ejecución exitosa recibe una etiqueta única.
+      # ------------------------------------------------------
+
+      - name: Crear GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="datos-$(date -u +'%Y%m%d-%H%M%S')"
+          FECHA="$(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          gh release create "$TAG" \
+            resultados/trabajos_consolidados.xlsx \
+            --title "Vacantes actualizadas - $FECHA" \
+            --notes "Archivo generado automáticamente con las vacantes disponibles del BID y el Banco Mundial." \
+            --latest

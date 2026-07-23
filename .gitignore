@@ -1,17 +1,16 @@
-# Archivos de Python
+# Variables y credenciales locales
+.env
+
+# Archivos temporales de Python
 __pycache__/
-
-# Configuración local de VS Code
-.vscode/
-
-# Archivos de Excel generados
-*.xlsx
+*.pyc
 
 # Entornos virtuales
 .venv/
-env/
+venv/
 
-# Environment variables / secrets
-.env
+# Archivos generados localmente
+resultados/*.xlsx
 
-*.pyc
+# Permitir conservar la carpeta en Git
+!resultados/.gitkeep
