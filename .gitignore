@@ -1,16 +1,30 @@
-# Variables y credenciales locales
+# Variables y credenciales
 .env
+.env.*
 
-# Archivos temporales de Python
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
 # Entornos virtuales
 .venv/
 venv/
+env/
 
-# Archivos generados localmente
+# Resultados generados
 resultados/*.xlsx
-
-# Permitir conservar la carpeta en Git
 !resultados/.gitkeep
+
+# Editores
+.vscode/
+.idea/
+
+# Sistemas operativos
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
