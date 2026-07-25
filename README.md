@@ -1,176 +1,256 @@
-# Job Search Automation
+# Automated International Development Job Opportunity Aggregator
 
-## Overview
+## Project Overview
 
-Job Search Automation is a Python application that automates the collection of job opportunities from international organizations using their official career APIs.
+This project collects current job opportunities from selected international
+development organizations through their official employment platforms. It
+standardizes the available information and generates a consolidated Excel
+workbook for easier review.
 
-The project was developed as part of my Python and software engineering learning journey while building a practical tool to support my own international job search in policy analysis, economics, data analysis, infrastructure, and international development.
+The project is designed as a practical job-discovery tool. It does not replace
+the organizations' official career websites, and it does not guarantee that
+every available vacancy is captured.
 
-Rather than manually visiting dozens of career websites every day, the goal is to collect opportunities automatically, standardize the information, and export it into a format that is easy to review.
+## Current Data Sources
 
----
+The project currently collects opportunities from:
 
-## Current Features
+- Inter-American Development Bank (IDB)
+- World Bank
 
-* Retrieve job opportunities from the **Inter-American Development Bank (IDB)** Careers API.
-* Retrieve job opportunities from the **World Bank** Careers API.
-* Automatic pagination for organizations that publish vacancies across multiple pages.
-* Standardized job data model across organizations.
-* Export results to Excel.
-* Secure credential management using environment variables.
-* Modular architecture designed for future expansion.
-* Version control using Git and GitHub.
+## Main Features
 
----
+- Automated collection from multiple official employment platforms
+- Independent execution of each scraper so one source can succeed if another
+  fails
+- Consolidated Excel output
+- A standardized English column structure across all sources
+- Daily execution through GitHub Actions
+- Publication of successful outputs through GitHub Releases
+- A public GitHub Pages download page
+- Preservation of the latest valid Excel file and Release when an update fails
 
-## Technologies
+## Architecture
 
-* Python
-* Requests
-* Pandas
-* OpenPyXL
-* python-dotenv
-* Git
-* GitHub
+The automated publishing flow is:
 
----
+```text
+GitHub Actions
+    → Python scrapers
+    → Consolidated Excel workbook
+    → GitHub Release
+    → GitHub Pages download link
+```
 
-## Project Structure
+The IDB scraper requests job data directly from the organization's employment
+API. The World Bank scraper uses Playwright to open the official careers portal,
+capture the authorization header used by the portal, and then request job data
+from the employment API.
+
+`main.py` runs both scrapers independently, combines valid results, and writes
+the consolidated workbook.
+
+## Repository Structure
 
 ```text
 job-search-automation/
-
-│
-├── buscar_bid.py          # IDB job scraper
-├── buscar_bm.py           # World Bank job scraper
-├── main.py                # Main execution script
-│
-├── resultados/            # Generated Excel files
-│
-├── .env.example           # Example environment variables
+├── .github/
+│   └── workflows/
+│       └── actualizar_trabajos.yml   # Daily and manual automation
+├── docs/
+│   ├── index.html                    # GitHub Pages download page
+│   └── styles.css                    # Public website styles
+├── results/                          # Generated Excel output
+│   └── consolidated_jobs.xlsx        # Created at runtime; not tracked
+├── autenticacion_bm.py               # World Bank token capture
+├── buscar_bid.py                     # IDB job scraper
+├── buscar_bm.py                      # World Bank job scraper
+├── main.py                           # Application entry point
+├── requirements.txt                  # Python dependencies
 ├── .gitignore
-├── README.md
-└── requirements.txt
+└── README.md
 ```
 
----
+The `results/` directory is created automatically when the application
+successfully produces output. Generated `.xlsx` files are excluded from version
+control.
+
+## Excel Output
+
+The application writes the consolidated workbook to:
+
+```text
+results/consolidated_jobs.xlsx
+```
+
+The workbook uses the following columns in this exact order:
+
+1. `Organization`
+2. `Job Title`
+3. `Location`
+4. `Country`
+5. `Posting Date`
+6. `Closing Date`
+7. `Job Type`
+8. `Job ID`
+9. `Description`
+10. `Application URL`
+11. `Source`
+
+Values are preserved from the official source data used by each scraper.
+Fields that are not available from a source may be empty.
+
+## Failure Protection
+
+The application is designed to avoid replacing a valid workbook with an empty
+or failed result:
+
+- Each scraper runs independently.
+- One scraper may return valid results even if another scraper fails.
+- A new workbook is generated when at least one scraper returns a valid,
+  non-empty result list.
+- If no scraper returns valid results, the application exits with a non-zero
+  status code.
+- The previous local workbook, if present, remains unchanged when no valid
+  results are returned.
+- GitHub Actions stops after a failed application run and does not publish a new
+  Release.
+- The most recent valid GitHub Release therefore remains available.
+
+The application first writes a temporary workbook and replaces the final file
+only after the temporary file has been created successfully.
 
 ## Installation
 
-Clone the repository:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/PauloQB95/job-search-automation.git
-```
-
-Move into the project folder:
-
-```bash
 cd job-search-automation
 ```
 
-Install the required packages:
+### 2. Create and activate a Python environment
+
+Creating an isolated environment is recommended.
+
+On macOS or Linux:
 
 ```bash
-pip install -r requirements.txt
+python -m venv .venv
+source .venv/bin/activate
 ```
 
-Create a local environment file:
+On Windows PowerShell:
 
-```text
-.env
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 ```
 
-Copy the contents of:
+### 3. Install Python dependencies
 
-```text
-.env.example
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-into:
+### 4. Install Chromium for Playwright
 
-```text
-.env
+```bash
+python -m playwright install chromium
 ```
 
-and replace the placeholder values with your own credentials.
+On supported Linux environments where Playwright must also install system
+packages, use:
 
-Run the project:
+```bash
+python -m playwright install --with-deps chromium
+```
+
+No API token or private environment configuration is required by the current
+application.
+
+## Local Execution
+
+Run the application from the repository root:
 
 ```bash
 python main.py
 ```
 
----
+When at least one scraper returns valid results, the workbook will appear at:
 
-## Security
+```text
+results/consolidated_jobs.xlsx
+```
 
-Sensitive credentials are **not stored in the repository**.
+A run depends on access to the organizations' external employment platforms and
+may take additional time while Playwright opens the World Bank careers portal.
 
-The project uses environment variables (`.env`) to securely manage authentication tokens required by some APIs.
+## Automated Execution
 
----
+The GitHub Actions workflow runs once per day. It can also be started manually
+from the repository's **Actions** tab using the `workflow_dispatch` trigger.
 
-## Current Architecture
+On a successful run, the workflow verifies that
+`results/consolidated_jobs.xlsx` exists and publishes it in a new GitHub
+Release. If the application exits with a failure status, the workflow stops
+before creating a Release.
 
-Each organization is implemented as an independent module.
+## Public Website
 
-Each scraper is responsible for:
+The public download page is available at:
 
-1. Connecting to its API.
-2. Downloading all available pages.
-3. Converting the organization's JSON structure into a standardized Python dictionary.
-4. Returning a list of job postings.
+<https://pauloqb95.github.io/job-search-automation/>
 
-This architecture allows new organizations to be incorporated with minimal changes to the rest of the project.
+Visitors can download the latest valid Excel workbook without installing
+software or creating an account.
 
----
+## Direct Download
+
+The latest valid Release asset is available through this permanent URL:
+
+<https://github.com/PauloQB95/job-search-automation/releases/latest/download/consolidated_jobs.xlsx>
+
+## Technologies
+
+- Python
+- Requests
+- Pandas
+- OpenPyXL
+- Playwright
+- HTML and CSS
+- GitHub Actions
+- GitHub Releases
+- GitHub Pages
+
+## Limitations
+
+- Availability depends on the external employment platforms.
+- Source APIs, authentication behavior, or page structures may change without
+  notice and can interrupt collection.
+- Job information should always be verified in the official posting.
+- The project does not guarantee that every available vacancy is captured.
+- Fields unavailable from a source may be empty in the workbook.
+- Updates occur on a daily schedule, not in real time.
+- This project is independent and is not affiliated with or endorsed by the
+  Inter-American Development Bank or the World Bank.
 
 ## Roadmap
 
-### Completed
+Possible future improvements include:
 
-* ✅ IDB scraper
-* ✅ World Bank scraper
-* ✅ Automatic pagination
-* ✅ Excel export
-* ✅ GitHub integration
-* ✅ Environment variable support
+- Support for additional international development organizations
+- Metadata showing the last successful update
+- Filters by location, organization, or job type
+- Automated validation and broader test coverage
+- Improved monitoring and reporting of scraper failures
 
-### Planned
+These items are possibilities rather than committed delivery dates.
 
-* ⬜ Refactor common API functionality
-* ⬜ CAF scraper
-* ⬜ United Nations scraper
-* ⬜ OECD scraper
-* ⬜ Keyword-based filtering
-* ⬜ Job relevance scoring
-* ⬜ Automated daily execution
-* ⬜ Email notifications
+## Disclaimer
 
----
-
-## What I Learned
-
-This project has allowed me to strengthen practical software engineering skills, including:
-
-* Working with REST APIs
-* Processing JSON responses
-* Handling API authentication
-* Managing pagination
-* Designing modular Python applications
-* Managing dependencies
-* Using Git and GitHub
-* Debugging real-world software issues
-
----
-
-## Motivation
-
-As a public policy graduate interested in economic development, infrastructure, data analysis, and evidence-based policymaking, I wanted to build a practical application that solves a real problem while strengthening my programming skills.
-
-This project combines both goals: improving my software engineering abilities while creating a tool that supports my own international job search.
-
-## Author
-
-Paulo Quequezana
+Job data originates from the organizations' official employment platforms.
+Users should verify titles, locations, deadlines, requirements, and other
+details in the official job posting and apply through the official application
+link.

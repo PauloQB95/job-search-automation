@@ -1,64 +1,113 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
     <meta
         name="description"
-        content="Descarga oportunidades laborales del BID y el Banco Mundial en formato Excel."
+        content="Download a consolidated Excel file of current job opportunities from the Inter-American Development Bank and the World Bank."
     >
-
-    <title>Oportunidades laborales internacionales</title>
-
+    <title>International Development Job Opportunities</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+    <main class="site-shell">
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-content">
+                <p class="eyebrow">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    Updated automatically every day
+                </p>
 
-    <main class="contenedor">
+                <h1 id="page-title">
+                    International Development Job Opportunities
+                </h1>
 
-        <section class="tarjeta">
+                <p class="hero-description">
+                    Download a consolidated Excel file containing current job
+                    opportunities from international development organizations.
+                    Review roles from the sources below in one convenient place.
+                </p>
 
-            <p class="etiqueta">
-                Actualización automática
-            </p>
-
-            <h1>
-                Oportunidades laborales internacionales
-            </h1>
-
-            <p class="descripcion">
-                Descarga un archivo Excel consolidado con las
-                oportunidades laborales publicadas por el Banco
-                Interamericano de Desarrollo y el Banco Mundial.
-            </p>
-
-            <div class="fuentes">
-                <span>Banco Interamericano de Desarrollo</span>
-                <span>Banco Mundial</span>
+                <div class="download-area">
+                    <a
+                        class="download-button"
+                        href="https://github.com/PauloQB95/job-search-automation/releases/latest/download/consolidated_jobs.xlsx"
+                    >
+                        <span>Download Latest Excel File</span>
+                        <span class="button-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <p class="file-details">
+                        Excel workbook <span aria-hidden="true">·</span> .xlsx
+                        <span aria-hidden="true">·</span> No account required
+                    </p>
+                </div>
             </div>
 
-            <a
-                class="boton-descarga"
-                href="https://github.com/PauloQB95/job-search-automation/releases/latest/download/trabajos_consolidados.xlsx"
-            >
-                Descargar Excel
-            </a>
-
-            <p class="nota">
-                El archivo se actualiza automáticamente una vez al día.
-                Si una actualización falla, se conserva la última
-                versión disponible.
-            </p>
-
+            <aside class="source-panel" aria-labelledby="sources-title">
+                <p class="panel-label">Currently included</p>
+                <h2 id="sources-title">Official job sources</h2>
+                <ul class="source-list">
+                    <li>
+                        <span class="source-mark" aria-hidden="true">IDB</span>
+                        <span>Inter-American Development Bank</span>
+                    </li>
+                    <li>
+                        <span class="source-mark" aria-hidden="true">WB</span>
+                        <span>World Bank</span>
+                    </li>
+                </ul>
+            </aside>
         </section>
 
-    </main>
+        <section class="information-grid" aria-label="Download information">
+            <article class="information-card">
+                <p class="card-number" aria-hidden="true">01</p>
+                <h2>Refreshed daily</h2>
+                <p>
+                    The file is updated automatically once a day. If an update
+                    fails, the most recent valid file remains available.
+                </p>
+            </article>
 
+            <article class="information-card">
+                <p class="card-number" aria-hidden="true">02</p>
+                <h2>Ready to use</h2>
+                <p>
+                    Open the workbook with any compatible spreadsheet
+                    application. No software installation or account creation
+                    is required by this website.
+                </p>
+            </article>
+        </section>
+
+        <section class="about-section" aria-labelledby="about-title">
+            <div>
+                <p class="section-label">About this project</p>
+                <h2 id="about-title">A simpler way to review selected opportunities</h2>
+            </div>
+            <p>
+                This project brings selected job listings from the organizations
+                above into a consistent spreadsheet. It is intended to make
+                discovery and comparison easier without replacing the official
+                employment platforms.
+            </p>
+        </section>
+
+        <footer class="disclaimer">
+            <h2>Important information</h2>
+            <p>
+                Job information originates from the organizations’ official
+                employment platforms. Always verify role details, deadlines,
+                and requirements on the official posting, and apply through the
+                organization’s official website. This independent project is
+                not affiliated with or endorsed by the organizations listed.
+            </p>
+        </footer>
+    </main>
 </body>
 </html>

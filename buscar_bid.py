@@ -2,14 +2,14 @@ import math
 import requests
 
 # ============================================================
-# CONFIGURACIÓN
+# CONFIGURATION
 # ============================================================
 
-def buscar_trabajos_bid():
+def fetch_idb_jobs():
     
-    URL = "https://jobs.iadb.org/services/recruiting/v1/jobs"
+    IDB_JOBS_URL = "https://jobs.iadb.org/services/recruiting/v1/jobs"
 
-    TRABAJOS_POR_PAGINA = 10
+    JOBS_PER_PAGE = 10
 
     payload = {
         "locale": "en_US",
@@ -25,69 +25,74 @@ def buscar_trabajos_bid():
         "skills": []
     }
 
-    lista_trabajos = []
+    jobs = []
 
     # ============================================================
-    # FUNCIÓN PARA PROCESAR UNA PÁGINA
+    # PROCESS ONE PAGE
     # ============================================================
 
-    def agregar_trabajos(datos_pagina):
+    def append_jobs(page_data):
 
-        trabajos = datos_pagina["jobSearchResult"]
+        job_results = page_data["jobSearchResult"]
 
-        for trabajo in trabajos:
+        for job_result in job_results:
 
-            detalle = trabajo["response"]
+            job_details = job_result["response"]
 
-            nuevo_trabajo = {
-                "organizacion": "IDB",
-                "titulo": detalle["unifiedStandardTitle"],
-                "ubicacion": "; ".join(
-                    ubicacion.strip()
-                    for ubicacion in detalle["jobLocationShort"]
+            job = {
+                "Organization": "IDB",
+                "Job Title": job_details["unifiedStandardTitle"],
+                "Location": "; ".join(
+                    location.strip()
+                    for location in job_details["jobLocationShort"]
                 ),
-                "fecha_limite": detalle["unifiedStandardEnd"],
-                "url": f"https://jobs.iadb.org/job/{detalle['unifiedUrlTitle']}/{detalle['id']}-en_US",
-            "fuente": "API"
+                "Country": "",
+                "Posting Date": "",
+                "Closing Date": job_details["unifiedStandardEnd"],
+                "Job Type": "",
+                "Job ID": job_details["id"],
+                "Description": "",
+                "Application URL": f"https://jobs.iadb.org/job/{job_details['unifiedUrlTitle']}/{job_details['id']}-en_US",
+                "Source": "API"
             }
 
-            lista_trabajos.append(nuevo_trabajo)
-    
-           
-    # ============================================================
-    # DESCARGAR LA PRIMERA PÁGINA
-    # ============================================================
+            jobs.append(job)
 
-    respuesta = requests.post(URL, json=payload)
-
-    datos = respuesta.json()
-
-    total_trabajos = datos["totalJobs"]
-
-    total_paginas = math.ceil(total_trabajos / TRABAJOS_POR_PAGINA)
-
-    print(f"Se encontraron {total_trabajos} trabajos.")
-    print(f"Se descargarán {total_paginas} páginas.\n")
-
-    # Procesamos inmediatamente la primera página
-    agregar_trabajos(datos)
 
     # ============================================================
-    # DESCARGAR EL RESTO DE LAS PÁGINAS
+    # DOWNLOAD THE FIRST PAGE
     # ============================================================
 
-    for pagina in range(1, total_paginas):
+    response = requests.post(IDB_JOBS_URL, json=payload)
 
-        payload["pageNumber"] = pagina
+    data = response.json()
 
-        respuesta = requests.post(URL, json=payload)
+    total_jobs = data["totalJobs"]
 
-        datos = respuesta.json()
+    total_pages = math.ceil(total_jobs / JOBS_PER_PAGE)
 
-        print(f"Descargando página {pagina + 1}...")
+    print(f"Found {total_jobs} jobs.")
+    print(f"Downloading {total_pages} pages.\n")
 
-        agregar_trabajos(datos)
+    # Process the first page immediately.
+    append_jobs(data)
 
-    # Devolvemos la lista completa de trabajos al programa principal
-    return lista_trabajos
+    # ============================================================
+    # DOWNLOAD THE REMAINING PAGES
+    # ============================================================
+
+    for page_number in range(1, total_pages):
+
+        payload["pageNumber"] = page_number
+
+        response = requests.post(IDB_JOBS_URL, json=payload)
+
+        data = response.json()
+
+        print(f"Downloading page {page_number + 1}...")
+
+        append_jobs(data)
+
+    # Return the complete job list to the main program.
+    return jobs
 
