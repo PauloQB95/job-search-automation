@@ -1,18 +1,18 @@
 import math
 import requests
 
-from autenticacion_bm import obtener_token_bm
+from autenticacion_bm import get_world_bank_token
 
 # ============================================================
-# CONFIGURACIÓN
+# CONFIGURATION
 # ============================================================
 
-def buscar_trabajos_bm():
-    print("Entré a buscar_trabajos_bm")
+def fetch_world_bank_jobs():
+    print("Entered fetch_world_bank_jobs")
     
-    URL = "https://us.api.csod.com/rec-job-search/external/jobs"
+    WORLD_BANK_JOBS_URL = "https://us.api.csod.com/rec-job-search/external/jobs"
 
-    TRABAJOS_POR_PAGINA = 25
+    JOBS_PER_PAGE = 25
 
     payload = {
         "careerSiteId": 1,
@@ -33,55 +33,60 @@ def buscar_trabajos_bm():
         "states": []
     }
       
-    lista_trabajos = []
+    jobs = []
 
     # ============================================================
-    # FUNCIÓN PARA PROCESAR UNA PÁGINA
+    # PROCESS ONE PAGE
     # ============================================================
 
-    def agregar_trabajos(datos_pagina):
+    def append_jobs(page_data):
 
-        trabajos = datos_pagina["data"]["requisitions"]
+        requisitions = page_data["data"]["requisitions"]
 
-        for trabajo in trabajos:
+        for requisition in requisitions:
 
-            locations = trabajo.get("locations", [])
+            locations = requisition.get("locations", [])
 
             if len(locations) > 0:
-                primera_ubicacion = locations[0]
-                ciudad = primera_ubicacion.get("city", "")
-                pais = primera_ubicacion.get("country", "")
-                ubicacion = f"{ciudad}, {pais}".strip(", ")
+                primary_location = locations[0]
+                city = primary_location.get("city", "")
+                country = primary_location.get("country", "")
+                location = f"{city}, {country}".strip(", ")
             else:
-                ubicacion = ""
+                country = ""
+                location = ""
 
-            requisition_id = trabajo["requisitionId"]
+            requisition_id = requisition["requisitionId"]
 
-            url_trabajo = (
+            job_url = (
                 "https://worldbankgroup.csod.com/ux/ats/careersite/1/home/"
                 f"requisition/{requisition_id}?c=worldbankgroup"
             )
 
-            nuevo_trabajo = {
-                "organizacion": "World Bank",
-                "titulo": trabajo["displayJobTitle"],
-                "ubicacion": ubicacion,
-                "fecha_limite": trabajo["postingExpirationDate"],
-                "url": url_trabajo,
-                "fuente": "API"
+            job = {
+                "Organization": "World Bank",
+                "Job Title": requisition["displayJobTitle"],
+                "Location": location,
+                "Country": country,
+                "Posting Date": "",
+                "Closing Date": requisition["postingExpirationDate"],
+                "Job Type": "",
+                "Job ID": requisition_id,
+                "Description": "",
+                "Application URL": job_url,
+                "Source": "API"
             }
 
-            lista_trabajos.append(nuevo_trabajo)
+            jobs.append(job)
 
 
     # ============================================================
-    # DESCARGAR LA PRIMERA PÁGINA
+    # DOWNLOAD THE FIRST PAGE
     # ============================================================
 
-    # Obtener automáticamente el token utilizado por
-    # el portal de empleos del Banco Mundial.
+    # Automatically retrieve the token used by the World Bank careers portal.
     try:
-        world_bank_token = obtener_token_bm()
+        world_bank_token = get_world_bank_token()
 
     except RuntimeError as error:
         print(error)
@@ -92,39 +97,43 @@ def buscar_trabajos_bm():
         "Content-Type": "application/json"
     }
       
-    respuesta = requests.post(URL, json=payload, headers=headers)
+    response = requests.post(
+        WORLD_BANK_JOBS_URL,
+        json=payload,
+        headers=headers
+    )
 
-    datos = respuesta.json()
+    data = response.json()
 
-    total_trabajos = datos["data"]["totalCount"]
-    total_paginas = math.ceil(total_trabajos / TRABAJOS_POR_PAGINA)
+    total_jobs = data["data"]["totalCount"]
+    total_pages = math.ceil(total_jobs / JOBS_PER_PAGE)
 
-    print(f"Se encontraron {total_trabajos} trabajos.")
-    print(f"Se descargarán {total_paginas} páginas.\n")
+    print(f"Found {total_jobs} jobs.")
+    print(f"Downloading {total_pages} pages.\n")
 
-    # Procesamos inmediatamente la primera página
-    agregar_trabajos(datos)
+    # Process the first page immediately.
+    append_jobs(data)
 
     # ============================================================
-    # DESCARGAR EL RESTO DE LAS PÁGINAS
+    # DOWNLOAD THE REMAINING PAGES
     # ============================================================
 
-    for pagina in range(2, total_paginas + 1):
+    for page_number in range(2, total_pages + 1):
 
-        payload["pageNumber"] = pagina
+        payload["pageNumber"] = page_number
 
-        respuesta = requests.post(
-            URL,
+        response = requests.post(
+            WORLD_BANK_JOBS_URL,
             json=payload,
             headers=headers
         )
 
-        datos = respuesta.json()
+        data = response.json()
 
-        print(f"Descargando página {pagina}...")
+        print(f"Downloading page {page_number}...")
 
-        agregar_trabajos(datos)
+        append_jobs(data)
 
-    # Devolvemos la lista completa de trabajos al programa principal
-    return lista_trabajos
+    # Return the complete job list to the main program.
+    return jobs
 

@@ -1,4 +1,4 @@
-# Variables y credenciales
+# Variables and credentials
 .env
 .env.*
 
@@ -8,20 +8,20 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Entornos virtuales
+# Virtual environments
 .venv/
 venv/
 env/
 
-# Resultados generados
-resultados/*.xlsx
-!resultados/.gitkeep
+# Generated results
+results/*.xlsx
+!results/.gitkeep
 
-# Editores
+# Editors
 .vscode/
 .idea/
 
-# Sistemas operativos
+# Operating systems
 .DS_Store
 Thumbs.db
 desktop.ini

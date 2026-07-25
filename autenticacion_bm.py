@@ -2,82 +2,76 @@ from playwright.sync_api import sync_playwright
 
 
 # ============================================================
-# OBTENER AUTOMÁTICAMENTE EL TOKEN DEL BANCO MUNDIAL
+# AUTOMATICALLY RETRIEVE THE WORLD BANK TOKEN
 # ============================================================
 
-def obtener_token_bm():
+def get_world_bank_token():
 
-    # Página pública del portal de empleos del Banco Mundial.
-    URL_PORTAL = (
+    # Public page for the World Bank careers portal.
+    WORLD_BANK_CAREERS_URL = (
         "https://worldbankgroup.csod.com/"
         "ux/ats/careersite/1/home"
         "?c=worldbankgroup"
     )
 
-    # Parte de la dirección de la API que queremos detectar.
-    ENDPOINT_TRABAJOS = (
+    # Portion of the API address to detect.
+    WORLD_BANK_JOBS_ENDPOINT = (
         "us.api.csod.com/rec-job-search/external/jobs"
     )
 
-    # Aquí se guardará el encabezado Authorization
-    # cuando Playwright lo encuentre.
-    token_encontrado = None
+    # Store the Authorization header when Playwright finds it.
+    captured_token = None
 
-    print("Abriendo el portal de empleos del Banco Mundial...")
+    print("Opening the World Bank careers portal...")
 
     with sync_playwright() as playwright:
 
-        navegador = playwright.chromium.launch(
+        browser = playwright.chromium.launch(
             headless=True
         )
 
-        contexto = navegador.new_context()
+        browser_context = browser.new_context()
 
-        pagina = contexto.new_page()
+        page = browser_context.new_page()
 
-        # Esta función se ejecutará cada vez que la página
-        # envíe una solicitud a Internet.
-        def revisar_solicitud(solicitud):
+        # Run this function whenever the page sends a request.
+        def inspect_request(request):
 
-            nonlocal token_encontrado
+            nonlocal captured_token
 
-            # Solo nos interesa la solicitud que consulta
-            # las vacantes del Banco Mundial.
-            if ENDPOINT_TRABAJOS in solicitud.url:
+            # Only inspect the request that retrieves World Bank jobs.
+            if WORLD_BANK_JOBS_ENDPOINT in request.url:
 
-                encabezados = solicitud.all_headers()
+                headers = request.all_headers()
 
-                authorization = encabezados.get("authorization")
+                authorization = headers.get("authorization")
 
                 if authorization:
-                    token_encontrado = authorization
+                    captured_token = authorization
 
-        # Empezamos a observar todas las solicitudes
-        # realizadas por la página.
-        pagina.on("request", revisar_solicitud)
+        # Monitor every request made by the page.
+        page.on("request", inspect_request)
 
         try:
-            pagina.goto(
-                URL_PORTAL,
+            page.goto(
+                WORLD_BANK_CAREERS_URL,
                 wait_until="domcontentloaded",
                 timeout=60000
             )
 
-            # Damos tiempo al portal para ejecutar JavaScript
-            # y consultar la API de vacantes.
-            pagina.wait_for_timeout(15000)
+            # Allow the portal to run JavaScript and query the jobs API.
+            page.wait_for_timeout(15000)
 
         finally:
-            navegador.close()
+            browser.close()
 
-    if not token_encontrado:
+    if not captured_token:
         raise RuntimeError(
-            "No se pudo obtener automáticamente el token "
-            "del Banco Mundial. Es posible que el portal "
-            "haya cambiado o que la solicitud de vacantes "
-            "no se haya ejecutado."
+            "The World Bank token could not be retrieved automatically. "
+            "The portal may have changed, or the jobs request may not "
+            "have been sent."
         )
 
-    print("Token del Banco Mundial obtenido correctamente.")
+    print("World Bank token retrieved successfully.")
 
-    return token_encontrado
+    return captured_token
