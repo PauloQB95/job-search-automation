@@ -18,6 +18,7 @@ The project currently collects opportunities from:
 - Inter-American Development Bank (IDB)
 - World Bank
 - United Nations System
+- Asian Development Bank (ADB)
 
 ## Main Features
 
@@ -47,7 +48,8 @@ The IDB scraper requests job data directly from the organization's employment
 API. The World Bank scraper uses Playwright to open the official careers portal,
 capture the authorization header used by the portal, and then request job data
 from the employment API. The United Nations scraper requests paginated job data
-from the official United Nations System Job Search portal.
+from the official United Nations System Job Search portal. The Asian Development
+Bank scraper reads eligible current opportunities from the official careers page.
 
 `main.py` runs all scrapers independently, combines valid results, and writes
 the consolidated workbook.
@@ -68,6 +70,7 @@ job-search-automation/
 ├── buscar_bid.py                     # IDB job scraper
 ├── buscar_bm.py                      # World Bank job scraper
 ├── buscar_un.py                      # United Nations System job scraper
+├── buscar_adb.py                     # Asian Development Bank job scraper
 ├── main.py                           # Application entry point
 ├── requirements.txt                  # Python dependencies
 ├── .gitignore
@@ -237,7 +240,8 @@ The latest valid Release asset is available through this permanent URL:
 - Fields unavailable from a source may be empty in the workbook.
 - Updates occur on a daily schedule, not in real time.
 - This project is independent and is not affiliated with or endorsed by the
-  Inter-American Development Bank, the World Bank, or the United Nations System.
+  Inter-American Development Bank, the World Bank, the United Nations System, or
+  the Asian Development Bank.
 
 ## Roadmap
 

@@ -92,5 +92,5 @@ jobs:
           gh release create "$TAG" \
             results/consolidated_jobs.xlsx \
             --title "Updated job listings - $DATE" \
-            --notes "Automatically generated file containing available IDB, World Bank, and United Nations System jobs." \
+            --notes "Automatically generated file containing available IDB, World Bank, United Nations System, and Asian Development Bank jobs." \
             --latest
