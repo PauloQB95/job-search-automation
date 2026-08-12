@@ -6,6 +6,7 @@ import pandas as pd
 from buscar_bid import fetch_idb_jobs
 from buscar_bm import fetch_world_bank_jobs
 from buscar_un import fetch_united_nations_jobs
+from buscar_adb import fetch_asian_development_bank_jobs
 
 
 # ============================================================
@@ -100,12 +101,18 @@ def main():
         scraper_function=fetch_united_nations_jobs
     )
 
+    asian_development_bank_jobs = run_scraper_safely(
+        organization_name="Asian Development Bank",
+        scraper_function=fetch_asian_development_bank_jobs
+    )
+
     # Combine results.
     jobs = []
 
     jobs.extend(idb_jobs)
     jobs.extend(world_bank_jobs)
     jobs.extend(united_nations_jobs)
+    jobs.extend(asian_development_bank_jobs)
 
     # --------------------------------------------------------
     # Both scrapers failed or returned no results
@@ -157,6 +164,7 @@ def main():
     print(f"IDB: {len(idb_jobs)} jobs.")
     print(f"World Bank: {len(world_bank_jobs)} jobs.")
     print(f"United Nations System: {len(united_nations_jobs)} jobs.")
+    print(f"Asian Development Bank: {len(asian_development_bank_jobs)} jobs.")
     print(f"File created at: {EXCEL_OUTPUT_PATH}")
 
     return 0
