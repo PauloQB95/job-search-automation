@@ -12,6 +12,14 @@ ADB_CURRENT_OPPORTUNITIES_URL = (
     "https://www.adb.org/work-with-us/careers/current-opportunities"
 )
 REQUEST_TIMEOUT_SECONDS = 30
+HTTP_HEADERS = {
+    "User-Agent": "Mozilla/5.0",
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,"
+        "*/*;q=0.8"
+    ),
+    "Accept-Language": "en-US,en;q=0.9",
+}
 INCLUDED_TABLE_CAPTIONS = {
     "Managerial International",
     "Technical International",
@@ -27,15 +35,35 @@ def fetch_asian_development_bank_jobs():
     try:
         response = requests.get(
             ADB_CURRENT_OPPORTUNITIES_URL,
+            headers=HTTP_HEADERS,
             timeout=REQUEST_TIMEOUT_SECONDS
         )
         response.raise_for_status()
     except requests.RequestException as error:
+        response_status = getattr(error.response, "status_code", None)
+        status_details = (
+            f" (HTTP status {response_status})"
+            if response_status is not None
+            else ""
+        )
+
         raise RuntimeError(
-            "Could not retrieve the Asian Development Bank careers page."
+            "Could not retrieve the Asian Development Bank careers page"
+            f"{status_details}."
         ) from error
 
     soup = BeautifulSoup(response.text, "html.parser")
+    table_captions = {
+        caption.get_text(" ", strip=True)
+        for caption in soup.find_all("caption")
+    }
+
+    if not table_captions.intersection(INCLUDED_TABLE_CAPTIONS):
+        raise RuntimeError(
+            "The Asian Development Bank careers page did not contain the "
+            "expected current-opportunity tables."
+        )
+
     jobs = []
     seen_job_references = set()
 
