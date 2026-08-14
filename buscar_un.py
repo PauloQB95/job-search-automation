@@ -2,6 +2,8 @@ import math
 
 import requests
 
+from job_schema import create_job
+
 
 # ============================================================
 # CONFIGURATION
@@ -64,19 +66,17 @@ def fetch_united_nations_jobs():
         """Map one page of United Nations jobs to the shared Excel schema."""
 
         for job_data in page_data["result"]:
-            job = {
-                "Organization": job_data.get("Department", ""),
-                "Job Title": job_data.get("Title", ""),
-                "Location": job_data.get("DutyStation", ""),
-                "Country": "",
-                "Posting Date": job_data.get("InsertDate", ""),
-                "Closing Date": job_data.get("EndDate", ""),
-                "Job Type": job_data.get("Level", ""),
-                "Job ID": job_data.get("JobId", ""),
-                "Description": "",
-                "Application URL": job_data.get("Link", ""),
-                "Source": "United Nations System"
-            }
+            job = create_job(
+                organization=job_data.get("Department", ""),
+                job_title=job_data.get("Title", ""),
+                location=job_data.get("DutyStation", ""),
+                posting_date=job_data.get("InsertDate", ""),
+                closing_date=job_data.get("EndDate", ""),
+                job_type=job_data.get("Level", ""),
+                job_id=job_data.get("JobId", ""),
+                application_url=job_data.get("Link", ""),
+                source="United Nations System"
+            )
 
             jobs.append(job)
 

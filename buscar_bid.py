@@ -1,6 +1,8 @@
 import math
 import requests
 
+from job_schema import create_job
+
 # ============================================================
 # CONFIGURATION
 # ============================================================
@@ -39,22 +41,22 @@ def fetch_idb_jobs():
 
             job_details = job_result["response"]
 
-            job = {
-                "Organization": "IDB",
-                "Job Title": job_details["unifiedStandardTitle"],
-                "Location": "; ".join(
+            job = create_job(
+                organization="IDB",
+                job_title=job_details["unifiedStandardTitle"],
+                location="; ".join(
                     location.strip()
                     for location in job_details["jobLocationShort"]
                 ),
-                "Country": "",
-                "Posting Date": "",
-                "Closing Date": job_details["unifiedStandardEnd"],
-                "Job Type": "",
-                "Job ID": job_details["id"],
-                "Description": "",
-                "Application URL": f"https://jobs.iadb.org/job/{job_details['unifiedUrlTitle']}/{job_details['id']}-en_US",
-                "Source": "API"
-            }
+                closing_date=job_details["unifiedStandardEnd"],
+                job_id=job_details["id"],
+                application_url=(
+                    "https://jobs.iadb.org/job/"
+                    f"{job_details['unifiedUrlTitle']}/"
+                    f"{job_details['id']}-en_US"
+                ),
+                source="API"
+            )
 
             jobs.append(job)
 

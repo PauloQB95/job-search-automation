@@ -2,6 +2,7 @@ import math
 import requests
 
 from autenticacion_bm import get_world_bank_token
+from job_schema import create_job
 
 # ============================================================
 # CONFIGURATION
@@ -63,19 +64,16 @@ def fetch_world_bank_jobs():
                 f"requisition/{requisition_id}?c=worldbankgroup"
             )
 
-            job = {
-                "Organization": "World Bank",
-                "Job Title": requisition["displayJobTitle"],
-                "Location": location,
-                "Country": country,
-                "Posting Date": "",
-                "Closing Date": requisition["postingExpirationDate"],
-                "Job Type": "",
-                "Job ID": requisition_id,
-                "Description": "",
-                "Application URL": job_url,
-                "Source": "API"
-            }
+            job = create_job(
+                organization="World Bank",
+                job_title=requisition["displayJobTitle"],
+                location=location,
+                country=country,
+                closing_date=requisition["postingExpirationDate"],
+                job_id=requisition_id,
+                application_url=job_url,
+                source="API"
+            )
 
             jobs.append(job)
 
