@@ -3,10 +3,8 @@ import sys
 
 import pandas as pd
 
-from buscar_bid import fetch_idb_jobs
-from buscar_bm import fetch_world_bank_jobs
-from buscar_un import fetch_united_nations_jobs
-from buscar_adb import fetch_asian_development_bank_jobs
+from job_schema import JOB_COLUMNS
+from scraper_registry import SCRAPERS
 
 
 # ============================================================
@@ -85,37 +83,20 @@ def main():
         1 if no jobs were retrieved.
     """
 
-    # Run the scrapers independently.
-    idb_jobs = run_scraper_safely(
-        organization_name="IDB",
-        scraper_function=fetch_idb_jobs
-    )
-
-    world_bank_jobs = run_scraper_safely(
-        organization_name="World Bank",
-        scraper_function=fetch_world_bank_jobs
-    )
-
-    united_nations_jobs = run_scraper_safely(
-        organization_name="United Nations System",
-        scraper_function=fetch_united_nations_jobs
-    )
-
-    asian_development_bank_jobs = run_scraper_safely(
-        organization_name="Asian Development Bank",
-        scraper_function=fetch_asian_development_bank_jobs
-    )
-
-    # Combine results.
+    # Run scrapers independently and combine their results in registry order.
     jobs = []
+    scraper_results = {}
 
-    jobs.extend(idb_jobs)
-    jobs.extend(world_bank_jobs)
-    jobs.extend(united_nations_jobs)
-    jobs.extend(asian_development_bank_jobs)
+    for organization_name, scraper_function in SCRAPERS:
+        organization_jobs = run_scraper_safely(
+            organization_name=organization_name,
+            scraper_function=scraper_function
+        )
+        scraper_results[organization_name] = organization_jobs
+        jobs.extend(organization_jobs)
 
     # --------------------------------------------------------
-    # Both scrapers failed or returned no results
+    # No scraper returned results
     # --------------------------------------------------------
 
     if not jobs:
@@ -140,7 +121,7 @@ def main():
         exist_ok=True
     )
 
-    jobs_dataframe = pd.DataFrame(jobs)
+    jobs_dataframe = pd.DataFrame(jobs, columns=JOB_COLUMNS)
 
     # Create a temporary file first.
     temporary_excel_path = (
@@ -161,10 +142,13 @@ def main():
     print("=" * 60)
 
     print(f"Total: {len(jobs_dataframe)} jobs.")
-    print(f"IDB: {len(idb_jobs)} jobs.")
-    print(f"World Bank: {len(world_bank_jobs)} jobs.")
-    print(f"United Nations System: {len(united_nations_jobs)} jobs.")
-    print(f"Asian Development Bank: {len(asian_development_bank_jobs)} jobs.")
+
+    for organization_name, _ in SCRAPERS:
+        print(
+            f"{organization_name}: "
+            f"{len(scraper_results[organization_name])} jobs."
+        )
+
     print(f"File created at: {EXCEL_OUTPUT_PATH}")
 
     return 0

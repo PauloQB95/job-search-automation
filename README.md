@@ -71,7 +71,9 @@ job-search-automation/
 ├── buscar_bm.py                      # World Bank job scraper
 ├── buscar_un.py                      # United Nations System job scraper
 ├── buscar_adb.py                     # Asian Development Bank job scraper
+├── job_schema.py                     # Shared job record schema
 ├── main.py                           # Application entry point
+├── scraper_registry.py               # Ordered scraper configuration
 ├── requirements.txt                  # Python dependencies
 ├── .gitignore
 └── README.md
@@ -80,6 +82,15 @@ job-search-automation/
 The `results/` directory is created automatically when the application
 successfully produces output. Generated `.xlsx` files are excluded from version
 control.
+
+Each scraper contains only the retrieval and transformation logic for its own
+source. `job_schema.py` defines the shared job record format, while
+`scraper_registry.py` lists the scrapers that `main.py` runs in order.
+
+To add an organization, create a scraper that returns records through
+`create_job()`, then add its display name and fetch function to `SCRAPERS`.
+Update the documented sources and Release notes when the public source list
+changes.
 
 ## Excel Output
 

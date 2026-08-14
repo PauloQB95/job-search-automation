@@ -3,6 +3,8 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
+from job_schema import create_job
+
 
 # ============================================================
 # CONFIGURATION
@@ -112,28 +114,26 @@ def fetch_asian_development_bank_jobs():
                 "td.views-field-field-date-closing time"
             )
 
-            job = {
-                "Organization": get_cell_text(
+            job = create_job(
+                organization=get_cell_text(
                     row,
                     "td.views-field-field-department"
                 ),
-                "Job Title": job_title,
-                "Location": get_cell_text(
+                job_title=job_title,
+                location=get_cell_text(
                     row,
                     "td.views-field-field-location"
                 ),
-                "Country": "",
-                "Posting Date": get_element_text(posting_date_element),
-                "Closing Date": get_element_text(closing_date_element),
-                "Job Type": get_cell_text(
+                posting_date=get_element_text(posting_date_element),
+                closing_date=get_element_text(closing_date_element),
+                job_type=get_cell_text(
                     row,
                     "td.views-field-field-position"
                 ),
-                "Job ID": job_reference,
-                "Description": "",
-                "Application URL": job_link["href"].strip(),
-                "Source": "Asian Development Bank"
-            }
+                job_id=job_reference,
+                application_url=job_link["href"].strip(),
+                source="Asian Development Bank"
+            )
 
             jobs.append(job)
             seen_job_references.add(job_reference)
