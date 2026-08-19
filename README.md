@@ -62,7 +62,10 @@ job-search-automation/
 │   └── workflows/
 │       └── actualizar_trabajos.yml   # Daily and manual automation
 ├── docs/
-│   ├── index.html                    # GitHub Pages download page
+│   ├── about.html                    # GitHub Pages About page
+│   ├── app.js                        # Job table filters and pagination
+│   ├── index.html                    # GitHub Pages job browser
+│   ├── job_data.json                 # Generated website job dataset
 │   └── styles.css                    # Public website styles
 ├── results/                          # Generated Excel output
 │   └── consolidated_jobs.xlsx        # Created at runtime; not tracked
@@ -73,6 +76,7 @@ job-search-automation/
 ├── buscar_adb.py                     # Asian Development Bank job scraper
 ├── job_schema.py                     # Shared job record schema
 ├── main.py                           # Application entry point
+├── output_generator.py               # Excel and website-data generation
 ├── scraper_registry.py               # Ordered scraper configuration
 ├── requirements.txt                  # Python dependencies
 ├── .gitignore
@@ -105,17 +109,23 @@ The workbook uses the following columns in this exact order:
 1. `Organization`
 2. `Job Title`
 3. `Location`
-4. `Country`
-5. `Posting Date`
-6. `Closing Date`
-7. `Job Type`
-8. `Job ID`
-9. `Description`
-10. `Application URL`
-11. `Source`
+4. `Posting Date`
+5. `Closing Date`
+6. `Job Type`
+7. `Job ID`
+8. `Application URL`
+9. `Source`
+10. `Country`
+11. `Description`
 
 Values are preserved from the official source data used by each scraper.
 Fields that are not available from a source may be empty.
+Posting and closing dates are formatted as `DD-MMM-YYYY` when they can be
+safely interpreted from the source value.
+
+The same successful run also generates `docs/job_data.json`. GitHub Pages uses
+this static dataset to show the current job table, source counts, and the UTC
+time at which that dataset was generated.
 
 ## Failure Protection
 
@@ -221,7 +231,8 @@ The public download page is available at:
 <https://pauloqb95.github.io/job-search-automation/>
 
 Visitors can download the latest valid Excel workbook without installing
-software or creating an account.
+software or creating an account. The Home page also provides a browsable job
+table with source, location, title, and closing-date filters.
 
 ## Direct Download
 

@@ -4,14 +4,14 @@ JOB_COLUMNS = (
     "Organization",
     "Job Title",
     "Location",
-    "Country",
     "Posting Date",
     "Closing Date",
     "Job Type",
     "Job ID",
-    "Description",
     "Application URL",
     "Source",
+    "Country",
+    "Description",
 )
 
 

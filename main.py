@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 
 from job_schema import JOB_COLUMNS
+from output_generator import WEBSITE_DATA_PATH, write_excel_workbook, write_website_data
 from scraper_registry import SCRAPERS
 
 
@@ -129,13 +130,17 @@ def main():
         "consolidated_jobs_temporary.xlsx"
     )
 
-    jobs_dataframe.to_excel(
-        temporary_excel_path,
-        index=False
+    write_excel_workbook(jobs_dataframe, temporary_excel_path)
+
+    temporary_website_data_path = WEBSITE_DATA_PATH.with_name(
+        "job_data_temporary.json"
     )
+    WEBSITE_DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    write_website_data(scraper_results, temporary_website_data_path)
 
     # Replace the previous Excel file only after creating the temporary file.
     temporary_excel_path.replace(EXCEL_OUTPUT_PATH)
+    temporary_website_data_path.replace(WEBSITE_DATA_PATH)
 
     print("\n" + "=" * 60)
     print("DOWNLOAD COMPLETE")
