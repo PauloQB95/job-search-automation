@@ -2,120 +2,128 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta
         name="description"
-        content="Download a consolidated Excel file of current job opportunities from selected international development organizations."
+        content="Browse current job opportunities from selected international development organizations."
     >
     <title>International Development Job Opportunities</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
 </head>
 
 <body>
+    <header class="site-header">
+        <div class="site-header__content">
+            <a class="site-brand" href="index.html">Development Jobs</a>
+            <nav aria-label="Primary navigation">
+                <ul class="site-navigation">
+                    <li><a aria-current="page" href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
     <main class="site-shell">
         <section class="hero" aria-labelledby="page-title">
-            <div class="hero-content">
-                <p class="eyebrow">
-                    <span class="status-dot" aria-hidden="true"></span>
-                    Updated automatically every day
+            <p class="eyebrow">Selected official employment platforms</p>
+            <h1 id="page-title">International Development Job Opportunities</h1>
+            <p class="hero-description">
+                Browse current opportunities from selected international
+                development organizations in one practical place.
+            </p>
+            <div class="hero-meta">
+                <p id="last-updated" class="last-updated" aria-live="polite">
+                    Last updated: Loading available job data…
                 </p>
+                <a
+                    class="download-button"
+                    href="https://github.com/PauloQB95/job-search-automation/releases/latest/download/consolidated_jobs.xlsx"
+                >
+                    Download Latest Excel File
+                </a>
+            </div>
+        </section>
 
-                <h1 id="page-title">
-                    International Development Job Opportunities
-                </h1>
-
-                <p class="hero-description">
-                    Download a consolidated Excel file containing current job
-                    opportunities from international development organizations.
-                    Review roles from the sources below in one convenient place.
-                </p>
-
-                <div class="download-area">
-                    <a
-                        class="download-button"
-                        href="https://github.com/PauloQB95/job-search-automation/releases/latest/download/consolidated_jobs.xlsx"
-                    >
-                        <span>Download Latest Excel File</span>
-                        <span class="button-arrow" aria-hidden="true">→</span>
-                    </a>
-                    <p class="file-details">
-                        Excel workbook <span aria-hidden="true">·</span> .xlsx
-                        <span aria-hidden="true">·</span> No account required
-                    </p>
+        <section class="summary-section" aria-labelledby="summary-title">
+            <div class="section-heading">
+                <div>
+                    <p class="section-label">Latest dataset</p>
+                    <h2 id="summary-title">Opportunities by source</h2>
                 </div>
+                <p class="fallback-message">
+                    If an update fails, the most recent successfully generated
+                    file remains available.
+                </p>
+            </div>
+            <div id="summary-cards" class="summary-cards" aria-live="polite"></div>
+        </section>
+
+        <section class="job-browser" aria-labelledby="jobs-title">
+            <div class="section-heading">
+                <div>
+                    <p class="section-label">Explore opportunities</p>
+                    <h2 id="jobs-title">Current jobs</h2>
+                </div>
+                <p id="job-count" class="job-count" aria-live="polite"></p>
             </div>
 
-            <aside class="source-panel" aria-labelledby="sources-title">
-                <p class="panel-label">Currently included</p>
-                <h2 id="sources-title">Official job sources</h2>
-                <ul class="source-list">
-                    <li>
-                        <span class="source-mark" aria-hidden="true">IDB</span>
-                        <span>Inter-American Development Bank</span>
-                    </li>
-                    <li>
-                        <span class="source-mark" aria-hidden="true">WB</span>
-                        <span>World Bank</span>
-                    </li>
-                    <li>
-                        <span class="source-mark" aria-hidden="true">UN</span>
-                        <span>United Nations System</span>
-                    </li>
-                    <li>
-                        <span class="source-mark" aria-hidden="true">ADB</span>
-                        <span>Asian Development Bank</span>
-                    </li>
-                </ul>
-            </aside>
-        </section>
+            <form id="filters" class="filters" aria-label="Filter jobs">
+                <div class="filter-field">
+                    <label for="organization-filter">Organization</label>
+                    <select id="organization-filter" name="organization">
+                        <option value="">All organizations</option>
+                        <option value="IDB">IDB</option>
+                        <option value="World Bank">World Bank</option>
+                        <option value="United Nations System">United Nations System</option>
+                        <option value="Asian Development Bank">Asian Development Bank</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="location-filter">Location</label>
+                    <input id="location-filter" name="location" type="search" autocomplete="off">
+                </div>
+                <div class="filter-field">
+                    <label for="title-filter">Job title</label>
+                    <input id="title-filter" name="title" type="search" autocomplete="off">
+                </div>
+                <div class="filter-field">
+                    <label for="closing-date-filter">Closing on or after</label>
+                    <input id="closing-date-filter" name="closing-date" type="date">
+                </div>
+                <div class="filter-actions">
+                    <button id="clear-filters" type="button">Clear filters</button>
+                </div>
+            </form>
 
-        <section class="information-grid" aria-label="Download information">
-            <article class="information-card">
-                <p class="card-number" aria-hidden="true">01</p>
-                <h2>Refreshed daily</h2>
-                <p>
-                    The file is updated automatically once a day. If an update
-                    fails, the most recent valid file remains available.
+            <div class="table-wrapper" tabindex="0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col"><button type="button" data-sort="Organization">Organization</button></th>
+                            <th scope="col"><button type="button" data-sort="Job Title">Job Title</button></th>
+                            <th scope="col"><button type="button" data-sort="Location">Location</button></th>
+                            <th scope="col"><button type="button" data-sort="Posting Date">Posting Date</button></th>
+                            <th scope="col"><button type="button" data-sort="Closing Date">Closing Date</button></th>
+                        </tr>
+                    </thead>
+                    <tbody id="job-table-body"></tbody>
+                </table>
+                <p id="no-results" class="no-results" hidden>
+                    No jobs match the selected filters.
                 </p>
-            </article>
-
-            <article class="information-card">
-                <p class="card-number" aria-hidden="true">02</p>
-                <h2>Ready to use</h2>
-                <p>
-                    Open the workbook with any compatible spreadsheet
-                    application. No software installation or account creation
-                    is required by this website.
-                </p>
-            </article>
-        </section>
-
-        <section class="about-section" aria-labelledby="about-title">
-            <div>
-                <p class="section-label">About this project</p>
-                <h2 id="about-title">A simpler way to review selected opportunities</h2>
             </div>
-            <p>
-                This project brings selected job listings from the organizations
-                above into a consistent spreadsheet. It is intended to make
-                discovery and comparison easier without replacing the official
-                employment platforms.
-            </p>
-        </section>
 
-        <footer class="disclaimer">
-            <h2>Important information</h2>
-            <p>
-                Job information originates from the organizations’ official
-                employment platforms. Always verify role details, deadlines,
-                and requirements on the official posting, and apply through the
-                organization’s official website. This independent project is
-                not affiliated with or endorsed by the organizations listed.
-            </p>
-        </footer>
+            <nav id="pagination" class="pagination" aria-label="Job results pages"></nav>
+        </section>
     </main>
+
+    <footer class="site-footer">
+        <p>
+            Job information originates from official employment platforms.
+            Verify details and apply through the official posting.
+        </p>
+    </footer>
 </body>
 </html>
