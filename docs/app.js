@@ -64,10 +64,9 @@ function formatTimestamp(value) {
         parts.map((part) => [part.type, part.value])
     );
 
-    return (
-        `Last updated: ${values.day}-${values.month}-${values.year} `
-        `${values.hour}:${values.minute} UTC`
-    );
+    return `Last updated: ${values.day}-${values.month}-${values.year} ${
+        values.hour
+    }:${values.minute} UTC`;
 }
 
 function getFilteredJobs() {
