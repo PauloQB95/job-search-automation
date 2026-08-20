@@ -66,8 +66,14 @@ def fetch_united_nations_jobs():
         """Map one page of United Nations jobs to the shared Excel schema."""
 
         for job_data in page_data["result"]:
+            organization_name = job_data.get("Department", "")
+
             job = create_job(
-                organization=job_data.get("Department", ""),
+                organization=(
+                    f"UN - {organization_name}"
+                    if organization_name
+                    else ""
+                ),
                 job_title=job_data.get("Title", ""),
                 location=job_data.get("DutyStation", ""),
                 posting_date=job_data.get("InsertDate", ""),
@@ -75,7 +81,7 @@ def fetch_united_nations_jobs():
                 job_type=job_data.get("Level", ""),
                 job_id=job_data.get("JobId", ""),
                 application_url=job_data.get("Link", ""),
-                source="United Nations System"
+                source="United Nations System website"
             )
 
             jobs.append(job)

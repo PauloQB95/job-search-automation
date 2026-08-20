@@ -114,10 +114,16 @@ def fetch_asian_development_bank_jobs():
                 "td.views-field-field-date-closing time"
             )
 
+            organization_name = get_cell_text(
+                row,
+                "td.views-field-field-department"
+            )
+
             job = create_job(
-                organization=get_cell_text(
-                    row,
-                    "td.views-field-field-department"
+                organization=(
+                    f"ADB - {organization_name}"
+                    if organization_name
+                    else ""
                 ),
                 job_title=job_title,
                 location=get_cell_text(
@@ -132,7 +138,7 @@ def fetch_asian_development_bank_jobs():
                 ),
                 job_id=job_reference,
                 application_url=job_link["href"].strip(),
-                source="Asian Development Bank"
+                source="Asian Development Bank website"
             )
 
             jobs.append(job)
