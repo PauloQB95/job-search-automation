@@ -55,7 +55,7 @@ def fetch_idb_jobs():
                     f"{job_details['unifiedUrlTitle']}/"
                     f"{job_details['id']}-en_US"
                 ),
-                source="API"
+                source="API - IDB"
             )
 
             jobs.append(job)

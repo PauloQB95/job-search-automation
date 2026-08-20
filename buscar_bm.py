@@ -72,7 +72,7 @@ def fetch_world_bank_jobs():
                 closing_date=requisition["postingExpirationDate"],
                 job_id=requisition_id,
                 application_url=job_url,
-                source="API"
+                source="API - World Bank"
             )
 
             jobs.append(job)

@@ -54,9 +54,12 @@ def parse_job_date(value, source_name=""):
             numeric_format = "%d/%m/%Y" if "/" in date_text else "%d-%m-%Y"
         elif second_number > 12:
             numeric_format = "%m/%d/%Y" if "/" in date_text else "%m-%d-%Y"
-        elif source_name == "United Nations System":
+        elif source_name in (
+            "United Nations System",
+            "United Nations System website"
+        ):
             numeric_format = "%d/%m/%Y" if "/" in date_text else "%d-%m-%Y"
-        elif source_name == "API":
+        elif source_name in ("API", "API - IDB", "API - World Bank"):
             numeric_format = "%m/%d/%Y" if "/" in date_text else "%m-%d-%Y"
         else:
             return None
