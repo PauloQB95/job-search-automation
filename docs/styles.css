@@ -138,6 +138,12 @@ h1 {
     line-height: 1;
 }
 
+.hero h1 {
+    margin-right: auto;
+    margin-left: auto;
+    text-align: center;
+}
+
 h2 {
     margin: 0;
     color: var(--blue);
@@ -156,9 +162,14 @@ h2 {
 .hero-meta {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: 20px 30px;
     margin-top: 32px;
+}
+
+.update-status {
+    flex: 1 1 430px;
 }
 
 .last-updated {
@@ -167,7 +178,7 @@ h2 {
 }
 
 .fallback-message {
-    max-width: 430px;
+    max-width: none;
     margin: 6px 0 0;
     color: #e7eff7;
     font-size: 0.88rem;
@@ -181,6 +192,7 @@ h2 {
     border: 2px solid var(--maize);
     border-radius: 5px;
     font-weight: 800;
+    margin-left: auto;
     text-decoration: none;
 }
 
@@ -447,6 +459,14 @@ td a {
 
     .hero {
         border-radius: 10px;
+    }
+
+    .hero-meta {
+        align-items: flex-start;
+    }
+
+    .download-button {
+        margin-left: 0;
     }
 
     .section-heading {
