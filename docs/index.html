@@ -15,7 +15,7 @@
 <body>
     <header class="site-header">
         <div class="site-header__content">
-            <a class="site-brand" href="index.html">Development Jobs</a>
+            <a class="site-brand" href="index.html">International Development Job Search Tool</a>
             <nav aria-label="Primary navigation">
                 <ul class="site-navigation">
                     <li><a aria-current="page" href="index.html">Home</a></li>
@@ -27,21 +27,26 @@
 
     <main class="site-shell">
         <section class="hero" aria-labelledby="page-title">
-            <p class="eyebrow">Selected official employment platforms</p>
-            <h1 id="page-title">International Development Job Opportunities</h1>
+            <h1 id="page-title">International Development Job Search Tool</h1>
             <p class="hero-description">
                 Browse current opportunities from selected international
-                development organizations in one practical place.
+                development organizations in one place
             </p>
             <div class="hero-meta">
-                <p id="last-updated" class="last-updated" aria-live="polite">
-                    Last updated: Loading available job data…
-                </p>
+                <div class="update-status">
+                    <p id="last-updated" class="last-updated" aria-live="polite">
+                        Last updated: Loading available job data…
+                    </p>
+                    <p class="fallback-message">
+                        If an update fails, the most recent successfully generated
+                        file remains available.
+                    </p>
+                </div>
                 <a
                     class="download-button"
                     href="https://github.com/PauloQB95/job-search-automation/releases/latest/download/consolidated_jobs.xlsx"
                 >
-                    Download Latest Excel File
+                    Download the full job database as an Excel file
                 </a>
             </div>
         </section>
@@ -52,10 +57,6 @@
                     <p class="section-label">Latest dataset</p>
                     <h2 id="summary-title">Opportunities by source</h2>
                 </div>
-                <p class="fallback-message">
-                    If an update fails, the most recent successfully generated
-                    file remains available.
-                </p>
             </div>
             <div id="summary-cards" class="summary-cards" aria-live="polite"></div>
         </section>
@@ -121,8 +122,9 @@
 
     <footer class="site-footer">
         <p>
-            Job information originates from official employment platforms.
-            Verify details and apply through the official posting.
+            Information originates from the official employment platforms or
+            websites of the organizations. Verify other details and application
+            steps through these and other official channels
         </p>
     </footer>
 </body>
