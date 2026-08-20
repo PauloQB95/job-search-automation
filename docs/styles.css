@@ -147,9 +147,10 @@ h2 {
 
 .hero-description {
     max-width: 690px;
-    margin: 24px 0 0;
+    margin: 24px auto 0;
     color: #e7eff7;
     font-size: 1.15rem;
+    text-align: center;
 }
 
 .hero-meta {
@@ -163,6 +164,13 @@ h2 {
 .last-updated {
     margin: 0;
     font-weight: 650;
+}
+
+.fallback-message {
+    max-width: 430px;
+    margin: 6px 0 0;
+    color: #e7eff7;
+    font-size: 0.88rem;
 }
 
 .download-button {
@@ -194,7 +202,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-.fallback-message,
 .job-count {
     max-width: 430px;
     margin: 0;
@@ -383,17 +390,6 @@ td a {
 .about-page {
     display: grid;
     gap: 22px;
-}
-
-.page-introduction {
-    padding: clamp(30px, 5vw, 54px);
-    color: #ffffff;
-    background: var(--blue);
-    border-radius: 14px;
-}
-
-.page-introduction h1 {
-    color: #ffffff;
 }
 
 .about-card {
