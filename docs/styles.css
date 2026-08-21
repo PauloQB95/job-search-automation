@@ -139,6 +139,7 @@ h1 {
 }
 
 .hero h1 {
+    max-width: 1080px;
     margin-right: auto;
     margin-left: auto;
     text-align: center;
@@ -152,7 +153,7 @@ h2 {
 }
 
 .hero-description {
-    max-width: 690px;
+    max-width: 1080px;
     margin: 24px auto 0;
     color: #e7eff7;
     font-size: 1.15rem;
@@ -412,9 +413,10 @@ td a {
 }
 
 .about-card p {
-    max-width: 760px;
+    max-width: none;
     margin: 14px 0 0;
     color: var(--muted);
+    text-align: justify;
 }
 
 .site-footer {
